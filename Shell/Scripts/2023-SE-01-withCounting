@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#echo "The script is running"
+
+if [[ ! -e "${1}" ]];then
+ echo "First arg needs to be file!"
+ exit 1
+fi
+
+if [[ ! -d "${2}" ]];then
+  echo "Second arg needs to be directory!"
+  exit 2
+fi
+
+#IFS=" "
+
+while read file; do
+ # echo "${file}"
+        while read -r wordInFile; do
+     #  echo "${wordInFile}"
+       if [[ -n $(cat "${1}" | grep "${wordInFile}") ]];then
+          #echo "found forbitten"
+           sizeWord=$(echo "${wordInFile}" | wc -c | awk '{print $1 - 1}' )
+            #echo "${sizeWord}"
+                   toReplace=$(printf "%${sizeWord}s" | tr ' ' '*')
+                   echo "${toReplace}"
+          sed -i "s/${wordInFile}/${toReplace}/g" "${file}"
+#       else
+          #echo "No fotbitten"
+       fi
+
+
+        done < <(cat "${file}" | tr ' ' '\n')
+
+   echo "------------------"
+
+done < <(find "${2}" -type f -name "*.txt")
