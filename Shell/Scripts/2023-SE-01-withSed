@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [[ "${#}" -ne 2 ]];then
+    echo "You need two args!"
+    exit 1
+fi
+
+if [[ ! -f "${1}" ]];then
+   echo "First arg needs to be a reg. file!"
+   exit 2
+fi
+
+if [[ ! -d "${2}" ]];then
+   echo "Second arg is not a directory!"
+   exit 3
+fi
+
+
+while read line; do
+ while read word; do
+     if   grep -q "${word}" "${line}" ;then
+         replace=$( echo "${word}" | sed -E "s/./\*/g" )
+         sed -i -E "s/\b${word}\b/ "${replace}"/g" "${line}"
+     fi
+done < "${1}"
+
+if [[ ! -z "${line}" ]];then
+    cat "${line}"
+fi
+done < <(find "${2}" -type f | egrep '(.+).txt$' )
